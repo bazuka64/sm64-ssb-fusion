@@ -752,3 +752,65 @@ struct DObjDesc
     Vec3f rotate;
     Vec3f scale;
 };
+
+struct MObjSub
+{
+    u16 pad00;
+    u8 fmt;
+    u8 siz;
+    void **sprites; // should this be a pointer to an array of images (sprite set)?
+    u16 unk08;
+    u16 unk0A;
+    u16 unk0C;
+    u16 unk0E;
+    s32 unk10; // could be f32??
+    f32 trau;       // U-Translation?
+    f32 trav;       // V-Translation?
+    f32 scau;       // U-Scale?
+    f32 scav;       // V-Scale?
+    f32 unk24;
+    f32 unk28;
+    void **palettes;  // palette pointers?
+    u16 flags;      // command flags?
+    u8 block_fmt;   // texture image format?
+    u8 block_siz;
+    u16 block_dxt;
+    u16 unk36;
+    u16 unk38;
+    u16 unk3A;
+    f32 scrollu;
+    f32 scrollv;
+    f32 unk44;
+    f32 unk48;       // Translate V?
+    u32 unk4C;
+    SYColorPack primcolor;
+    u8 prim_l;
+    u8 prim_m;
+    u8 prim_pad[2];
+    SYColorPack envcolor;
+    SYColorPack blendcolor;
+    SYColorPack light1color;
+    SYColorPack light2color;
+    s32 unk68;
+    s32 unk6C;
+    s32 unk70;
+    s32 unk74;
+};
+
+struct MObj                         // Material Object
+{
+    MObj *next;
+    GObj *parent_gobj;              // Unconfirmed
+    MObjSub sub;
+    u16 texture_id_curr;
+    u16 texture_id_next;
+    f32 lfrac;
+    f32 palette_id;
+    s32 unk_mobj_0x8C;
+    AObj *aobj;
+    AObjScript matanim_joint;
+    f32 anim_wait;                  // Animation frames remaining until next command(s) are parsed
+    f32 anim_speed;                 // Animation playback rate / interpolation, multi-purpose?
+    f32 anim_frame;                 // Current animation frame, multi-purpose?
+	GCUserData user_data;           // Actually just padding?
+};

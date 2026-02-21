@@ -643,7 +643,49 @@ void ftManagerSetupFilesMainKind(s32 fkind)
     *data->p_file_main = lbRelocGetExternHeapFile(data->file_main_id, syTaskmanMalloc(lbRelocGetFileSize(data->file_main_id), 0x10));
 }
 
+void* lbRelocGetStatusBufferFile(u32 id)
+{
+    return lbRelocFindStatusBufferFile(id);
+}
+
+void ftManagerSetupFilesKind(s32 fkind)
+{
+    FTData *data = &dFTNessData;
+
+    if (data->file_mainmotion_id != 0)
+    {
+        *data->p_file_mainmotion = lbRelocGetStatusBufferFile(data->file_mainmotion_id);
+    }
+    if (data->file_submotion_id != 0)
+    {
+        *data->p_file_submotion = lbRelocGetStatusBufferFile(data->file_submotion_id);
+    }
+    *data->p_file_model = lbRelocGetStatusBufferFile(data->file_model_id);
+
+    if (data->file_shieldpose_id != 0)
+    {
+        data->p_file_shieldpose = lbRelocGetStatusBufferFile(data->file_shieldpose_id);
+    }
+    if (data->file_special1_id != 0)
+    {
+        *data->p_file_special1 = lbRelocGetStatusBufferFile(data->file_special1_id);
+    }
+    if (data->file_special2_id != 0)
+    {
+        *data->p_file_special2 = lbRelocGetStatusBufferFile(data->file_special2_id);
+    }
+    if (data->file_special3_id != 0)
+    {
+        *data->p_file_special3 = lbRelocGetStatusBufferFile(data->file_special3_id);
+    }
+    if (data->file_special4_id != 0)
+    {
+        *data->p_file_special4 = lbRelocGetStatusBufferFile(data->file_special4_id);
+    }
+}
+
 void ftManagerSetupFilesAllKind(s32 fkind)
 {
     ftManagerSetupFilesMainKind(fkind);
+    //ftManagerSetupFilesKind(fkind);
 }

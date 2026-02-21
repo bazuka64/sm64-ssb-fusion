@@ -948,6 +948,7 @@ struct LevelCommand *level_script_execute(struct LevelCommand *cmd) {
 
     init_rcp(CLEAR_ZBUFFER);
     render_game();
+    ssb_draw();
     end_master_display_list();
     alloc_display_list(0);
 
