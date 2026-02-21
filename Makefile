@@ -10,7 +10,7 @@ TARGET_STRING := sm64
 # Preprocessor definitions
 DEFINES :=
 
-SRC_DIRS :=
+SRC_DIRS := ssb
 USE_DEBUG := 0
 
 #==============================================================================#
@@ -506,7 +506,7 @@ DEF_INC_CFLAGS := $(foreach i,$(INCLUDE_DIRS),-I$(i)) $(C_DEFINES)
 # C compiler options
 CFLAGS = -G 0 $(OPT_FLAGS) $(TARGET_CFLAGS) $(MIPSISET) $(DEF_INC_CFLAGS)
 ifeq ($(COMPILER),gcc)
-  CFLAGS += -mno-shared -march=vr4300 -mfix4300 -mabi=32 -mhard-float -mdivide-breaks -fno-stack-protector -fno-common -fno-zero-initialized-in-bss -fno-PIC -mno-abicalls -fno-strict-aliasing -fno-inline-functions -ffreestanding -fwrapv -Wall -Wextra
+  CFLAGS += -mno-shared -march=vr4300 -mfix4300 -mabi=32 -mhard-float -mdivide-breaks -fno-stack-protector -fno-common -fno-zero-initialized-in-bss -fno-PIC -mno-abicalls -fno-strict-aliasing -fno-inline-functions -ffreestanding -fwrapv -w -Wextra
   CFLAGS += -Wno-missing-braces
 else ifeq ($(COMPILER),clang)
   CFLAGS += -mfpxx -target mips -mabi=32 -G 0 -mhard-float -fomit-frame-pointer -fno-stack-protector -fno-common -I include -I src/ -I $(BUILD_DIR)/include -fno-PIC -mno-abicalls -fno-strict-aliasing -fno-inline-functions -ffreestanding -fwrapv -Wall -Wextra
@@ -557,7 +557,8 @@ endif
 ifneq (,$(call find-command,wslview))
     EMULATOR = "/mnt/c/Program Files (x86)/parallel-launcher/parallel-launcher.exe"
 else
-    EMULATOR = parallel-launcher
+#     EMULATOR = parallel-launcher
+    EMULATOR = "/mnt/c/Program Files/parallel-launcher/parallel-launcher.exe"
 endif
 
 EMU_FLAGS =
@@ -945,6 +946,8 @@ else ifeq ($(CONSOLE),bb)
 	$(V)mv tmp $@
 endif
 	$(V)$(N64CKSUM) $@
+	$(V)truncate -s 8M $@
+	$(V)cat ssb/relocData.bin >> $@
 
 $(BUILD_DIR)/$(TARGET).objdump: $(ELF)
 	$(OBJDUMP) -D $< > $@

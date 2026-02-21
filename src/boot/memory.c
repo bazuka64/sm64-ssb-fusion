@@ -255,7 +255,8 @@ u32 main_pool_pop_state(void) {
  * function blocks until completion.
  */
 void dma_read(u8 *dest, u8 *srcStart, u8 *srcEnd) {
-    u32 size = ALIGN16(srcEnd - srcStart);
+    // u32 size = ALIGN16(srcEnd - srcStart);
+    u32 size = (srcEnd - srcStart);
 
     osInvalDCache(dest, size);
     while (size != 0) {

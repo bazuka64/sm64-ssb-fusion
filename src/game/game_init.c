@@ -789,6 +789,8 @@ void thread5_game_loop(UNUSED void *arg) {
     gConfig.widescreen = save_file_get_widescreen_mode();
 #endif
     render_init();
+    
+    ssb_init();
 
     while (TRUE) {
         profiler_frame_setup();
