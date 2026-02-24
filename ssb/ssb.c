@@ -1,6 +1,7 @@
 #include <macros.h>
 #include <PR/gbi.h>
 #include <PR/mbi.h>
+#include <PR/gu.h>
 extern Gfx* gDisplayListHead;
 
 #include "lbdef.h"
@@ -16,6 +17,7 @@ int debug_value = 0;
 int first = 0;
 int count = 0;
 void append_puppyprint_log(const char* str, ...);
+// print_text_fmt_int(10, 10, "%d", debug_value);
 
 // func
 void syDebugPrintf(const char* fmt, ...) {}
@@ -36,6 +38,24 @@ SYMallocRegion gSYTaskmanGraphicsHeap;
 SYMallocRegion sSYTaskmanDefaultGraphicsHeap[2];
 s32 gSYTaskmanTaskID = 1;
 
+static Lights1 sSSBDefaultLights = gdSPDefLights1(
+    0x40, 0x40, 0x40,
+    0xFF, 0xFF, 0xFF, 0x28, 0x28, 0x28
+);
+
+static Mtx sSSBViewMtx;
+static Mtx sSSBModelMtx;
+
+static const f32 sSSBCamEyeX = 0.0f;
+static const f32 sSSBCamEyeY = 120.0f;
+static const f32 sSSBCamEyeZ = 450.0f;
+static const f32 sSSBCamAtX = 0.0f;
+static const f32 sSSBCamAtY = 80.0f;
+static const f32 sSSBCamAtZ = 0.0f;
+static const f32 sSSBPosX = 0.0f;
+static const f32 sSSBPosY = 0.0f;
+static const f32 sSSBPosZ = 0.0f;
+
 #define DOBJ_PARENT_NULL            ((DObj*)1)
 #define DOBJ_FLAG_NONE              (0)
 #define DOBJ_FLAG_HIDDEN            (1 << 1)
@@ -45,6 +65,21 @@ s32 gSYTaskmanTaskID = 1;
 #define DObjGetStruct(gobj) ((DObj*)(gobj)->obj)
 #define DOBJ_ARRAY_MAX              18
 #define NBITS(t) ((int) (sizeof(t) * 8) )
+
+// MObj defines - some of these are wild guesses...
+#define MOBJ_FLAG_NONE              (0)
+#define MOBJ_FLAG_ALPHA             (1 << 0)
+#define MOBJ_FLAG_SPLIT             (1 << 1)    // Uses texture_id_next as texture image...?
+#define MOBJ_FLAG_PALETTE           (1 << 2)
+#define MOBJ_FLAG_FRAC              (1 << 4)
+#define MOBJ_FLAG_TEXTURE           (1 << 7)
+#define MOBJ_FLAG_PRIMCOLOR         (1 << 9)
+#define MOBJ_FLAG_ENVCOLOR          (1 << 10)
+#define MOBJ_FLAG_BLENDCOLOR        (1 << 11)
+#define MOBJ_FLAG_LIGHT1            (1 << 12)
+#define MOBJ_FLAG_LIGHT2            (1 << 13)
+
+#define ABSF(x) ((x) < 0.0F ? -(x) : (x))
 
 DObj* gcGetDObjSetNextAlloc(void)
 {
@@ -333,17 +368,16 @@ void ssb_init() {
     FTStruct* fp;
 
     syMallocInit(&gSYTaskmanGeneralHeap, 0x10000, 0x80400000, 0x400000);
-    // for (int i = 0; i < 1; i++){
+
+    syMallocInit(&gSYTaskmanGraphicsHeap, 0x10002, syTaskmanMalloc(0xD000, 0x8), 0xD000);
+    // for (int i = 0; i < 2; i++)
+    // {
     //     syMallocInit(&gSYTaskmanGraphicsHeap, 0x10002, syTaskmanMalloc(0xD000, 0x8), 0xD000);
+    //     sSYTaskmanDefaultGraphicsHeap[i].id = gSYTaskmanGraphicsHeap.id;
+    //     sSYTaskmanDefaultGraphicsHeap[i].start = gSYTaskmanGraphicsHeap.start;
+    //     sSYTaskmanDefaultGraphicsHeap[i].end = gSYTaskmanGraphicsHeap.end;
+    //     sSYTaskmanDefaultGraphicsHeap[i].ptr = gSYTaskmanGraphicsHeap.ptr;
     // }
-    for (int i = 0; i < 2; i++)
-    {
-        syMallocInit(&gSYTaskmanGraphicsHeap, 0x10002, syTaskmanMalloc(0xD000, 0x8), 0xD000);
-        sSYTaskmanDefaultGraphicsHeap[i].id = gSYTaskmanGraphicsHeap.id;
-        sSYTaskmanDefaultGraphicsHeap[i].start = gSYTaskmanGraphicsHeap.start;
-        sSYTaskmanDefaultGraphicsHeap[i].end = gSYTaskmanGraphicsHeap.end;
-        sSYTaskmanDefaultGraphicsHeap[i].ptr = gSYTaskmanGraphicsHeap.ptr;
-    }
 
     scVSBattleSetupFiles();
     ftManagerSetupFilesAllKind(nFTKindNess);
@@ -373,9 +407,20 @@ void ssb_init() {
 
 void gcDrawMObjForDObj(DObj* dobj, Gfx** dl_head) {
     s32 mobj_count;
+    s32 i;
     MObj* mobj;
     Gfx* new_dl;
     Gfx* branch_dl;
+    u32 flags;
+    f32 scau;
+    f32 scav;
+    f32 trau;
+    f32 trav;
+    f32 scrollu;
+    f32 scrollv;
+    s32 uls, ult;
+    s32 s, t;
+
     if (dobj->mobj == NULL)
     {
         return;
@@ -385,17 +430,280 @@ void gcDrawMObjForDObj(DObj* dobj, Gfx** dl_head) {
     {
         mobj = mobj->next;
     }
-    // append_puppyprint_log("mobj_count: %d", mobj_count);
     mobj = dobj->mobj;
     branch_dl = (Gfx*)(((Gfx*)gSYTaskmanGraphicsHeap.ptr) + mobj_count);
     new_dl = gSYTaskmanGraphicsHeap.ptr;
 
     for (int i = 0; i < mobj_count; i++, mobj = mobj->next) {
-        // gSPBranchList(&new_dl[i], branch_dl); // テクスチャつけるときはこれ
-        gSPEndDisplayList(&new_dl[i]);
+
+        flags = mobj->sub.flags;
+
+        if (flags == MOBJ_FLAG_NONE)
+        {
+            flags = (MOBJ_FLAG_TEXTURE | 0x20 | MOBJ_FLAG_ALPHA);
+        }
+        if (flags & (MOBJ_FLAG_TEXTURE | 0x40 | 0x20))
+        {
+            scau = mobj->sub.scau;
+            scav = mobj->sub.scav;
+            trau = mobj->sub.trau;
+            trav = mobj->sub.trav;
+            scrollu = mobj->sub.scrollu;
+            scrollv = mobj->sub.scrollv;
+
+            if (mobj->sub.unk10 == 1)
+            {
+                scau *= 0.5F;
+                trau = ((trau - mobj->sub.unk24) + 1.0F - (mobj->sub.unk28 * 0.5F)) * 0.5F;
+                scrollu = ((scrollu - mobj->sub.unk44) + 1.0F - (mobj->sub.unk28 * 0.5F)) * 0.5F;
+            }
+        }
+
+        gSPBranchList(&new_dl[i], branch_dl);
+
+        if (flags & MOBJ_FLAG_PALETTE)
+        {
+            gDPSetTextureImage(branch_dl++, G_IM_FMT_RGBA, G_IM_SIZ_16b, 1, mobj->sub.palettes[(s32)mobj->palette_id]);
+
+            if (flags & (MOBJ_FLAG_SPLIT | MOBJ_FLAG_ALPHA))
+            {
+                gDPTileSync(branch_dl++);
+                gDPSetTile
+                (
+                    branch_dl++,
+                    G_IM_FMT_RGBA,
+                    G_IM_SIZ_4b,
+                    0,
+                    0x0100,
+                    5,
+                    0,
+                    G_TX_NOMIRROR | G_TX_WRAP,
+                    G_TX_NOMASK,
+                    G_TX_NOLOD,
+                    G_TX_NOMIRROR | G_TX_WRAP,
+                    G_TX_NOMASK,
+                    G_TX_NOLOD
+                );
+                gDPLoadSync(branch_dl++);
+                gDPLoadTLUTCmd(branch_dl++, 5, (mobj->sub.siz == G_IM_SIZ_8b) ? 0xFF : 0xF);
+                gDPPipeSync(branch_dl++);
+            }
+        }
+        if (flags & MOBJ_FLAG_LIGHT1)
+        {
+            gSPLightColor(branch_dl++, LIGHT_1, mobj->sub.light1color.pack);
+        }
+        if (flags & MOBJ_FLAG_LIGHT2)
+        {
+            gSPLightColor(branch_dl++, LIGHT_2, mobj->sub.light2color.pack);
+        }
+        if (flags & (MOBJ_FLAG_PRIMCOLOR | MOBJ_FLAG_FRAC | 0x8))
+        {
+            if (flags & MOBJ_FLAG_FRAC)
+            {
+                s32 trunc = mobj->lfrac;
+
+                gDPSetPrimColor
+                (
+                    branch_dl++,
+                    mobj->sub.prim_m,
+                    (mobj->lfrac - trunc) * 256.0F,
+                    mobj->sub.primcolor.s.r,
+                    mobj->sub.primcolor.s.g,
+                    mobj->sub.primcolor.s.b,
+                    mobj->sub.primcolor.s.a
+                );
+                mobj->texture_id_curr = trunc;
+                mobj->texture_id_next = trunc + 1;
+            }
+            else
+            {
+                gDPSetPrimColor
+                (
+                    branch_dl++,
+                    mobj->sub.prim_m,
+                    mobj->lfrac * 255.0F,
+                    mobj->sub.primcolor.s.r,
+                    mobj->sub.primcolor.s.g,
+                    mobj->sub.primcolor.s.b,
+                    mobj->sub.primcolor.s.a
+                );
+            }
+        }
+        if (flags & MOBJ_FLAG_ENVCOLOR)
+        {
+            gDPSetEnvColor
+            (
+                branch_dl++,
+                mobj->sub.envcolor.s.r,
+                mobj->sub.envcolor.s.g,
+                mobj->sub.envcolor.s.b,
+                mobj->sub.envcolor.s.a
+            );
+        }
+        if (flags & MOBJ_FLAG_BLENDCOLOR)
+        {
+            gDPSetBlendColor
+            (
+                branch_dl++,
+                mobj->sub.blendcolor.s.r,
+                mobj->sub.blendcolor.s.g,
+                mobj->sub.blendcolor.s.b,
+                mobj->sub.blendcolor.s.a
+            );
+        }
+        if (flags & (MOBJ_FLAG_FRAC | MOBJ_FLAG_SPLIT))
+        {
+            s32 block_siz = (mobj->sub.block_siz == G_IM_SIZ_32b) ? G_IM_SIZ_32b : G_IM_SIZ_16b;
+
+            gDPSetTextureImage
+            (
+                branch_dl++,
+                mobj->sub.block_fmt,
+                block_siz,
+                1,
+                mobj->sub.sprites[mobj->texture_id_next]
+            );
+            if (flags & (MOBJ_FLAG_FRAC | MOBJ_FLAG_ALPHA))
+            {
+                gDPLoadSync(branch_dl++);
+
+                switch (mobj->sub.block_siz)
+                {
+                case G_IM_SIZ_4b:
+                    gDPLoadBlock
+                    (
+                        branch_dl++,
+                        6,
+                        0,
+                        0,
+                        (((mobj->sub.block_dxt * mobj->sub.unk36) + 3) >> 2) - 1,
+                        (((mobj->sub.block_dxt / 16 <= 0) ? 1 : mobj->sub.block_dxt / 16) + 0x7FF) / ((mobj->sub.block_dxt / 16 <= 0) ? 1 : mobj->sub.block_dxt / 16)
+                    );
+                    break;
+
+                case G_IM_SIZ_8b:
+                    gDPLoadBlock
+                    (
+                        branch_dl++,
+                        6,
+                        0,
+                        0,
+                        (((mobj->sub.block_dxt * mobj->sub.unk36) + 1) >> 1) - 1,
+                        (((mobj->sub.block_dxt / 8 <= 0) ? 1 : mobj->sub.block_dxt / 8) + 0x7FF) / ((mobj->sub.block_dxt / 8 <= 0) ? 1 : mobj->sub.block_dxt / 8)
+                    );
+                    break;
+
+                case G_IM_SIZ_16b:
+                    gDPLoadBlock
+                    (
+                        branch_dl++,
+                        6,
+                        0,
+                        0,
+                        (mobj->sub.block_dxt * mobj->sub.unk36) - 1,
+                        ((((mobj->sub.block_dxt * 2) / 8 <= 0) ? 1 : (mobj->sub.block_dxt * 2) / 8) + 0x7FF) / (((mobj->sub.block_dxt * 2) / 8 <= 0) ? 1 : (mobj->sub.block_dxt * 2) / 8)
+                    );
+                    break;
+
+                case G_IM_SIZ_32b:
+                    gDPLoadBlock
+                    (
+                        branch_dl++,
+                        6,
+                        0,
+                        0,
+                        (mobj->sub.block_dxt * mobj->sub.unk36) - 1,
+                        ((((mobj->sub.block_dxt * 4) / 8 <= 0) ? 1 : (mobj->sub.block_dxt * 4) / 8) + 0x7FF) / (((mobj->sub.block_dxt * 4) / 8 <= 0) ? 1 : (mobj->sub.block_dxt * 4) / 8)
+                    );
+                    break;
+                }
+                gDPLoadSync(branch_dl++);
+            }
+        }
+        if (flags & (MOBJ_FLAG_FRAC | MOBJ_FLAG_ALPHA))
+        {
+            gDPSetTextureImage
+            (
+                branch_dl++,
+                mobj->sub.fmt,
+                mobj->sub.siz,
+                1,
+                mobj->sub.sprites[mobj->texture_id_curr]
+            );
+        }
+        if (flags & 0x20)
+        {
+            if (mobj->sub.unk10 == 2)
+            {
+                uls = (ABSF(scau) > (1.0F / 65535.0F)) ? ((mobj->sub.unk0C * trau) / scau) * 4.0F : 0.0F;
+                ult = (ABSF(scav) > (1.0F / 65535.0F)) ? ((mobj->sub.unk0E * trav) / scav) * 4.0F : 0.0F;
+
+                if (uls < 0)
+                {
+                    uls = 0;
+                }
+                if (ult < 0)
+                {
+                    ult = 0;
+                }
+            }
+            else
+            {
+                uls = (ABSF(scau) > (1.0F / 65535.0F)) ? (((mobj->sub.unk0C * trau) + mobj->sub.unk0A) / scau) * 4.0F : 0.0F;
+                ult = (ABSF(scav) > (1.0F / 65535.0F)) ? (((((1.0F - scav) - trav) * mobj->sub.unk0E) + mobj->sub.unk0A) / scav) * 4.0F : 0.0F;
+            }
+            gDPSetTileSize
+            (
+                branch_dl++,
+                0,
+                uls,
+                ult,
+                ((mobj->sub.unk0C - 1) << 2) + uls,
+                ((mobj->sub.unk0E - 1) << 2) + ult
+            );
+        }
+        if (flags & 0x40)
+        {
+            uls = (ABSF(scau) > (1.0F / 65535.0F)) ? (((mobj->sub.unk38 * scrollu) + mobj->sub.unk0A) / scau) * 4.0F : 0.0F;
+            ult = (ABSF(scav) > (1.0F / 65535.0F)) ? (((((1.0F - scav) - scrollv) * mobj->sub.unk3A) + mobj->sub.unk0A) / scav) * 4.0F : 0.0F;
+
+            gDPSetTileSize
+            (
+                branch_dl++,
+                1,
+                uls,
+                ult,
+                ((mobj->sub.unk38 - 1) << 2) + uls,
+                ((mobj->sub.unk3A - 1) << 2) + ult
+            );
+        }
+        if (flags & MOBJ_FLAG_TEXTURE)
+        {
+            if (mobj->sub.unk10 == 2)
+            {
+                s = (ABSF(scau) > (1.0F / 65535.0F)) ? (mobj->sub.unk0C * 64) / scau : 0.0F;
+                t = (ABSF(scav) > (1.0F / 65535.0F)) ? (mobj->sub.unk0E * 64) / scav : 0.0F;
+            }
+            else
+            {
+                s = (ABSF(scau) > (1.0F / 65535.0F)) ? (2097152.0F / mobj->sub.unk08) / scau : 0.0F;
+                t = (ABSF(scav) > (1.0F / 65535.0F)) ? (2097152.0F / mobj->sub.unk08) / scav : 0.0F;
+            }
+            if (s > 0xFFFF)
+            {
+                s = 0xFFFF;
+            }
+            if (t > 0xFFFF)
+            {
+                t = 0xFFFF;
+            }
+            gSPTexture(branch_dl++, s, t, 0, 0, G_ON);
+        }
+
+        gSPEndDisplayList(branch_dl++);
     }
     gSYTaskmanGraphicsHeap.ptr = (void*)branch_dl;
-
 }
 
 void ftDisplayMainDrawDefault(DObj* dobj) {
@@ -403,17 +711,12 @@ void ftDisplayMainDrawDefault(DObj* dobj) {
 
     if (dobj->dl != 0) {
 
-         {
-            gcDrawMObjForDObj(dobj, &gDisplayListHead);
-            
-            // for(int i=0;i<20;i++){
-            //     if(dobj->dl[i].words.w0 == 0xDE000000){
-            //         append_puppyprint_log("BranchList to %x", dobj->dl[i].words.w1);
-            //     }
-            // }
+        gcDrawMObjForDObj(dobj, &gDisplayListHead);
 
-            gSPDisplayList(gDisplayListHead++, dobj->dl);
-        }
+        // gDPPipeSync(gDisplayListHead++);
+        // gDPSetRenderMode(gDisplayListHead++, G_RM_PASS, G_RM_AA_ZB_OPA_SURF2);
+
+        gSPDisplayList(gDisplayListHead++, dobj->dl);
     }
 
     if (dobj->child != NULL)
@@ -457,11 +760,33 @@ void syTaskmanResetGraphicsHeap(void) // reset gSYTaskmanGraphicsHeap allocator
     syMallocReset(&gSYTaskmanGraphicsHeap);
 }
 
-void ssb_draw() {
-    if (gSYTaskmanTaskID == 1)gSYTaskmanTaskID = 0;
-    else gSYTaskmanTaskID = 1;
-    syTaskmanResetGraphicsHeap();
+typedef f32 Mat4[4][4];
+typedef f32 Vec3fArray[3]; // X, Y, Z, where Y is up
+
+void ssb_draw(Vec3fArray pos) {
+
+    // if (gSYTaskmanTaskID == 1)gSYTaskmanTaskID = 0;
+    // else gSYTaskmanTaskID = 1;
+    //syTaskmanResetGraphicsHeap();
+    syMallocReset(&gSYTaskmanGraphicsHeap);
+
+    // テクスチャをつけるのに必要
+    gDPPipeSync(gDisplayListHead++);
+    gDPSetCycleType(gDisplayListHead++, G_CYC_2CYCLE);
+    gSPSetGeometryMode(gDisplayListHead++, G_ZBUFFER | G_SHADE | G_CULL_BACK | G_LIGHTING | G_SHADING_SMOOTH);
+    gDPSetRenderMode(gDisplayListHead++, G_RM_FOG_PRIM_A, G_RM_AA_ZB_OPA_SURF2);
+
+    Mtx* mtx = alloc_display_list(sizeof(*mtx)); // s32
+    Mat4 mat4;
+    mtxf_translate(mat4, pos);
+    mtxf_to_mtx_fast(mtx, mat4);
+
+    gSPMatrix(
+        gDisplayListHead++,
+        VIRTUAL_TO_PHYSICAL(mtx),
+        G_MTX_MODELVIEW | G_MTX_LOAD | G_MTX_NOPUSH
+    );
+
     ftDisplayMainProcDisplay(&gobj);
-    // print_text_fmt_int(10, 10, "%d", debug_value);
-    first = 1;
 }
+

@@ -127,6 +127,7 @@ const LevelScript level_castle_grounds_entry[] = {
         MACRO_OBJECTS(/*objList*/ castle_grounds_seg7_macro_objs),
         SET_BACKGROUND_MUSIC(/*settingsPreset*/ 0x0000, /*seq*/ SEQ_SOUND_PLAYER),
         TERRAIN_TYPE(/*terrainType*/ TERRAIN_GRASS),
+        OBJECT(/*model*/ MODEL_NONE,                        /*pos*/ -1328+500, 260+100, 4664-500, /*angle*/ 0,   0, 0, /*behParam*/ 0x00000000, /*beh*/ bhvSSB),
     END_AREA(),
 
     FREE_LEVEL_POOL(),

@@ -307,7 +307,7 @@ void geo_process_master_list_sub(struct GraphNodeMasterList *node) {
                 // Add the display list's transformation to the master list.
                 gSPMatrix(tempGfxHead++, VIRTUAL_TO_PHYSICAL(currList->transform),
                           (G_MTX_MODELVIEW | G_MTX_LOAD | G_MTX_NOPUSH));
-#if SILHOUETTE
+#if SeILHOUETTE
                 if (phaseIndex == RENDER_PHASE_SILHOUETTE) {
                     // Add the current display list to the master list, with silhouette F3D.
                     gSPDisplayList(tempGfxHead++, dl_silhouette_begin);
@@ -1036,6 +1036,12 @@ void visualise_object_hitbox(struct Object *node) {
  * Process an object node.
  */
 void geo_process_object(struct Object *node) {
+    
+    if(node->behavior == segmented_to_virtual(bhvSSB)) {
+        ssb_draw(node->header.gfx.pos);
+        return;
+    }
+    
     if (node->header.gfx.areaIndex == gCurGraphNodeRoot->areaIndex) {
         s32 isInvisible = (node->header.gfx.node.flags & GRAPH_RENDER_INVISIBLE);
         s32 noThrowMatrix = (node->header.gfx.throwMatrix == NULL);

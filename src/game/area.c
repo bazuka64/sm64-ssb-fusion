@@ -394,6 +394,7 @@ void render_game(void) {
         if (gCurrentArea->graphNode) {
             geo_process_root(gCurrentArea->graphNode, gViewportOverride, gViewportClip, gFBSetColor);
         }
+        // ssb_draw();
 #ifdef PUPPYPRINT
         bzero(gCurrEnvCol, sizeof(ColorRGBA));
 #endif
