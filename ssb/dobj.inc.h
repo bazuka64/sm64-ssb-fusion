@@ -28,6 +28,8 @@ typedef f32 Vec3fArray[3]; // X, Y, Z, where Y is up
 #define F32_MAX 3.40282346639e+38F
 #define F32_MIN (-F32_MAX)
 #define AOBJ_ANIM_NULL              F32_MIN      
+#define AOBJ_ANIM_CHANGED           (F32_MIN / 2.0F)    // ???
+#define AOBJ_ANIM_END               (F32_MIN / 3.0F)    // Used to 
 #define DObjGetStruct(gobj) ((DObj*)(gobj)->obj)
 #define DOBJ_ARRAY_MAX              18
 #define NBITS(t) ((int) (sizeof(t) * 8) )

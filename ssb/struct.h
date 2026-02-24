@@ -829,3 +829,62 @@ struct DObjVec
     u8 pad;
     u8 data[1];
 };
+
+union FTAnimDesc
+{
+    u32 word;
+
+    struct
+    {
+        ub32 is_use_xrotn_joint : 1;        // 0x80000000
+        ub32 is_use_transn_joint : 1;       // 0x40000000
+        ub32 is_use_yrotn_joint : 1;        // 0x20000000
+        ub32 is_enabled_joints : 24;        // 0x10000000 to 0x00000020 - not actually a single variable, but 24 bits, each corresponding to a joint ID
+        ub32 is_use_submotion_script : 1;   // 0x00000010
+        ub32 is_anim_joint : 1;             // 0x00000008 - whether current animation is type Figatree (0) or AnimJoint (1)
+        ub32 is_have_translate_scale : 1;   // 0x00000004
+        ub32 is_use_shieldpose : 1;         // 0x00000002
+        ub32 is_use_animlocks : 1;          // 0x00000001
+
+    } flags;
+};
+
+struct FTMotionDesc
+{
+    u32 anim_file_id;       // Animation file ID
+    intptr_t offset;        // Offset?
+    FTAnimDesc anim_desc;   // Animation flags
+};
+
+struct FTMotionDescArray
+{
+    FTMotionDesc motion_desc[1]; // Array size = last animation ID?
+};
+
+struct AObj
+{
+    AObj *next;
+    u8 track;
+    u8 kind;
+    f32 length_invert;
+    f32 length;
+    f32 value_base;
+    f32 value_target;
+    f32 rate_base;
+    f32 rate_target;
+    void *interpolate;
+};
+
+union AObjEvent16
+{
+    s16 s;
+    u16 u;
+
+    struct
+    {
+        u16 opcode : 5;
+        u16 flags : 10;
+        u16 toggle : 1;
+
+    } command;
+};
