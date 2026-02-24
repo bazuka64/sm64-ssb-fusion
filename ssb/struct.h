@@ -814,3 +814,18 @@ struct MObj                         // Material Object
     f32 anim_frame;                 // Current animation frame, multi-purpose?
 	GCUserData user_data;           // Actually just padding?
 };
+
+struct XObj 
+{
+    XObj *next;
+    u8 kind;
+    u8 unk05;
+    Mtx mtx;
+};
+
+struct DObjVec
+{
+    u8 kinds[3];
+    u8 pad;
+    u8 data[1];
+};

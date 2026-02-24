@@ -689,3 +689,8 @@ void ftManagerSetupFilesAllKind(s32 fkind)
     ftManagerSetupFilesMainKind(fkind);
     //ftManagerSetupFilesKind(fkind);
 }
+
+void syMallocReset(SYMallocRegion* bp)
+{
+    bp->ptr = bp->start;
+}
