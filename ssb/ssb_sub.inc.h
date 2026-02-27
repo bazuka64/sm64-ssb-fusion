@@ -6,12 +6,7 @@ void ftMainSetStatus(GObj* fighter_gobj, s32 status_id, f32 frame_begin, f32 ani
     FTMotionDescArray* script_array = fp->data->mainmotion;
     s32 motion_id;
 
-    if (status_id == nFTCommonStatusAppeal) {
-        status_desc = &appealDesc;
-    }
-    else {
-        status_desc = &waitDesc;
-    }
+    status_desc = &dFTCommonActionStatusDescs[status_id - nFTCommonStatusActionStart];
     motion_id = status_desc->mflags.motion_id;
 
     motion_desc = &script_array->motion_desc[motion_id];
@@ -27,6 +22,9 @@ void ftMainSetStatus(GObj* fighter_gobj, s32 status_id, f32 frame_begin, f32 ani
     fp->proc_physics = status_desc->proc_physics;
     fp->proc_map = status_desc->proc_map;
 }
+
+#define I_CONTROLLER_RANGE_MAX 80									// Maximum control stick range in integer
+
 
 void ftMainProcUpdateInterrupt(GObj* fighter_gobj) {
     FTStruct* this_fp = ftGetStruct(fighter_gobj);
@@ -44,6 +42,8 @@ void ftMainProcUpdateInterrupt(GObj* fighter_gobj) {
 
         // mario to ssb controlelr
         controller->button_hold = gControllers[0].buttonDown;
+        controller->stick_range.x = gControllers[0].rawStickX;
+        controller->stick_range.y = gControllers[0].rawStickY;
 
         button_hold = controller->button_hold;
 
@@ -63,6 +63,76 @@ void ftMainProcUpdateInterrupt(GObj* fighter_gobj) {
         pl->button_release = button_tap_mask;
 
         pl->button_hold = button_hold;
+
+        if (pl->stick_range.x > I_CONTROLLER_RANGE_MAX)
+        {
+            pl->stick_range.x = I_CONTROLLER_RANGE_MAX;
+        }
+        if (pl->stick_range.x < -I_CONTROLLER_RANGE_MAX)
+        {
+            pl->stick_range.x = -I_CONTROLLER_RANGE_MAX;
+        }
+        if (pl->stick_range.y > I_CONTROLLER_RANGE_MAX)
+        {
+            pl->stick_range.y = I_CONTROLLER_RANGE_MAX;
+        }
+        if (pl->stick_range.y < -I_CONTROLLER_RANGE_MAX)
+        {
+            pl->stick_range.y = -I_CONTROLLER_RANGE_MAX;
+        }
+
+        if (pl->stick_range.x >= 20)
+        {
+            if (pl->stick_prev.x >= 20)
+            {
+                this_fp->tap_stick_x++, this_fp->hold_stick_x++;
+            }
+            else this_fp->tap_stick_x = this_fp->hold_stick_x = 1;
+        }
+        else if (pl->stick_range.x <= -20)
+        {
+            if (pl->stick_prev.x <= -20)
+            {
+                this_fp->tap_stick_x++, this_fp->hold_stick_x++;
+            }
+            else this_fp->tap_stick_x = this_fp->hold_stick_x = 1;
+        }
+        else this_fp->tap_stick_x = this_fp->hold_stick_x = FTINPUT_STICKBUFFER_TICS_MAX;
+
+        if (this_fp->tap_stick_x > FTINPUT_STICKBUFFER_TICS_MAX)
+        {
+            this_fp->tap_stick_x = FTINPUT_STICKBUFFER_TICS_MAX;
+        }
+        if (this_fp->hold_stick_x > FTINPUT_STICKBUFFER_TICS_MAX)
+        {
+            this_fp->hold_stick_x = FTINPUT_STICKBUFFER_TICS_MAX;
+        }
+        if (pl->stick_range.y >= 20)
+        {
+            if (pl->stick_prev.y >= 20)
+            {
+                this_fp->tap_stick_y++, this_fp->hold_stick_y++;
+            }
+            else this_fp->tap_stick_y = this_fp->hold_stick_y = 1;
+        }
+        else if (pl->stick_range.y <= -20)
+        {
+            if (pl->stick_prev.y <= -20)
+            {
+                this_fp->tap_stick_y++, this_fp->hold_stick_y++;
+            }
+            else this_fp->tap_stick_y = this_fp->hold_stick_y = 1;
+        }
+        else this_fp->tap_stick_y = this_fp->hold_stick_y = FTINPUT_STICKBUFFER_TICS_MAX;
+
+        if (this_fp->tap_stick_y > FTINPUT_STICKBUFFER_TICS_MAX)
+        {
+            this_fp->tap_stick_y = FTINPUT_STICKBUFFER_TICS_MAX;
+        }
+        if (this_fp->hold_stick_y > FTINPUT_STICKBUFFER_TICS_MAX)
+        {
+            this_fp->hold_stick_y = FTINPUT_STICKBUFFER_TICS_MAX;
+        }
     }
 
     ftParamUpdateAnimKeys(&gobj);
@@ -77,6 +147,15 @@ void ftMainProcUpdateInterrupt(GObj* fighter_gobj) {
     }
 }
 
-void ftMainProcPhysicsMap(GObj* fighter_gobj) {
+#define SCALE 0.5F
 
+void ftMainProcPhysicsMap(GObj* fighter_gobj, Vec3fArray pos) {
+    FTStruct* fp = ftGetStruct(fighter_gobj);
+
+    if (fp->proc_physics != NULL)
+    {
+        fp->proc_physics(fighter_gobj);
+    }
+
+    pos[0] += fp->physics.vel_ground.x * fp->lr * SCALE;
 }

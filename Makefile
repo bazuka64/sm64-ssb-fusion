@@ -559,11 +559,13 @@ ifneq (,$(call find-command,wslview))
     EMULATOR = "/mnt/c/Program Files (x86)/parallel-launcher/parallel-launcher.exe"
 else
 #     EMULATOR = parallel-launcher
-    EMULATOR = "/mnt/c/Program Files/parallel-launcher/parallel-launcher.exe" # retroarch.exe起動でもいい
+    EMULATOR = "/mnt/c/Program Files/parallel-launcher/parallel-launcher.exe"
+#     EMULATOR = "/mnt/c/Users/pentan/AppData/Local/parallel-launcher/data/retroarch/RetroArch.exe" 
 #     EMULATOR = "/mnt/c/Users/pentan/Downloads/Luna_Project64/Project64.exe"
 endif
 
-EMU_FLAGS =
+# EMU_FLAGS = "-L" "/mnt/c/Users/pentan/AppData/Local/parallel-launcher/data/retro-data/cores/parallel_n64_next_libretro.dll"
+EMU_FLAGS = 
 
 ifneq (,$(call find-command,wslview))
     LOADER = ./$(TOOLS_DIR)/UNFLoader.exe

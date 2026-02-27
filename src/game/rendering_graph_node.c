@@ -1038,7 +1038,8 @@ void visualise_object_hitbox(struct Object *node) {
 void geo_process_object(struct Object *node) {
     
     if(node->behavior == segmented_to_virtual(bhvSSB)) {
-        ssb_draw(node->header.gfx.pos);
+        // ssb_draw(node->header.gfx.pos);
+        ssb_draw(&node->oPosX, &node->oFaceAnglePitch);
         return;
     }
     

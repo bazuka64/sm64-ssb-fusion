@@ -659,3 +659,43 @@ void ftParamUpdateAnimKeys(GObj* fighter_gobj) {
         }
     }
 }
+
+DObj* gcGetTreeDObjNext(DObj *dobj)
+{
+    if (dobj->child != NULL)
+    {
+        dobj = dobj->child;
+    }
+    else if (dobj->sib_next != NULL)
+    {
+        dobj = dobj->sib_next;
+    }
+    else while (TRUE)
+    {
+        if (dobj->parent == DOBJ_PARENT_NULL)
+        {
+            dobj = NULL;
+
+            break;
+        }
+        else if (dobj->parent->sib_next != NULL)
+        {
+            dobj = dobj->parent->sib_next;
+
+            break;
+        }
+        else dobj = dobj->parent;
+    }
+    return dobj;
+}
+
+void gcSetAnimSpeed(GObj *gobj, f32 anim_speed)
+{
+    DObj *dobj = DObjGetStruct(gobj);
+
+    while (dobj != NULL)
+    {
+        dobj->anim_speed = anim_speed;
+        dobj = gcGetTreeDObjNext(dobj);
+    }
+}

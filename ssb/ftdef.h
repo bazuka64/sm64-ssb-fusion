@@ -12,6 +12,7 @@
 #define FTPARTS_FLAG_TOGGLEFOG 0x80
 
 #define FTPHYSICS_AIRDRIFT_CLAMP_RANGE_MIN  8 // Default minimum stick range required to clamp air drift in respective physics routine
+#define U8_MAX   255
 
 #define FTINPUT_STICKBUFFER_TICS_MAX      (U8_MAX - 1)
 #define FTINPUT_ZTRIGLAST_TICS_MAX        (U16_MAX + 1)

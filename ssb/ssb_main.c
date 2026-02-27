@@ -22,6 +22,7 @@ extern struct Controller gControllers[4];
 #include "dobj.inc.h"
 #include "anim.inc.h"
 #include "status.inc.h"
+#include "ftcommonstatus.h"
 #include "ssb_sub.inc.h"
 
 void ssb_init() {
@@ -43,12 +44,13 @@ void ssb_init() {
     gobj.user_data.p = &fighter;
     fp = &fighter;
     fp->data = &dFTNessData;
+    fp->lr = 1;
     fp->input.controller = &cont;
     fp->input.button_mask_a = A_BUTTON;
     fp->input.button_mask_b = B_BUTTON;
     fp->input.button_mask_z = Z_TRIG;
     fp->input.button_mask_l = L_TRIG;
-    attr = lbRelocGetFileData(FTAttributes*, *dFTNessData.p_file_main, dFTNessData.o_attributes);
+    attr = fp->attr = lbRelocGetFileData(FTAttributes*, *dFTNessData.p_file_main, dFTNessData.o_attributes);
     for (int i = 0; i < ARRAY_COUNT(fp->joints); i++)
     {
         fp->joints[i] = NULL;
@@ -76,10 +78,10 @@ void ssb_init() {
     ftMainSetStatus(fighter_gobj, nFTCommonStatusWait, 0.0f, 1.0f, 0);
 }
 
-void ssb_draw(Vec3fArray pos) {
+void ssb_draw(Vec3fArray pos, Vec3iArray rot) {
 
     ftMainProcUpdateInterrupt(&gobj);
-    ftMainProcPhysicsMap(&gobj);
+    ftMainProcPhysicsMap(&gobj, pos);
 
     syMallocReset(&gSYTaskmanGraphicsHeap);
 
@@ -91,7 +93,16 @@ void ssb_draw(Vec3fArray pos) {
 
     Mtx* mtx = alloc_display_list(sizeof(*mtx)); // s32
     Mat4 mat4; // f32
-    mtxf_translate(mat4, pos);
+    Mat4 mat4_2; // f32
+    const Vec3fArray scale = { SCALE, SCALE, SCALE }; // f32
+    mtxf_identity(mat4);
+    s16 rot_y = rot[1];
+    if(fighter.lr==-1){
+        rot_y += 0x8000;
+    }
+    Vec3sArray rot_s = { rot[0], rot_y, rot[2] };
+    mtxf_rotate_zxy_and_translate(mat4, pos, rot_s);
+    mtxf_scale_vec3f(mat4, mat4, scale);
     mtxf_to_mtx_fast(mtx, mat4);
 
     gSPMatrix(

@@ -3,6 +3,8 @@
 
 typedef f32 Mat4[4][4];
 typedef f32 Vec3fArray[3]; // X, Y, Z, where Y is up
+typedef s32 Vec3iArray[3]; // X, Y, Z, where Y is up
+typedef s16 Vec3sArray[3]; // X, Y, Z, where Y is up
 
 #define DOBJ_PARENT_NULL            ((DObj*)1)
 #define DOBJ_FLAG_NONE              (0)
@@ -61,8 +63,3 @@ typedef f32 Vec3fArray[3]; // X, Y, Z, where Y is up
 
 #define GOBJ_FLAG_NOANIM            (1 << 1)            // Skip applying aninmation values?
 #define SQUARE(x) ((x) * (x))
-
-#define ftCommonGroundCheckInterrupt(fighter_gobj) \
-(	\
-	(ftCommonAppealCheckInterruptCommon(fighter_gobj) != FALSE) \
-)
