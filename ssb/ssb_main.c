@@ -80,8 +80,13 @@ void ssb_init() {
 
 void ssb_draw(Vec3fArray pos, Vec3iArray rot) {
 
-    ftMainProcUpdateInterrupt(&gobj);
-    ftMainProcPhysicsMap(&gobj, pos);
+    for (size_t i = 0; i < 2; i++)
+    {
+        /* code */
+        ftMainProcUpdateInterrupt(&gobj);
+        ftMainProcPhysicsMap(&gobj, pos);
+    }
+    
 
     syMallocReset(&gSYTaskmanGraphicsHeap);
 
