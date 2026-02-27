@@ -5,11 +5,11 @@ struct LBRelocSetup
 {
     uintptr_t table_addr;        // ROM address
     u32 table_files_num;         // Total number of files in table?
-    void *file_heap;         
+    void* file_heap;
     size_t file_heap_size;
-    LBFileNode *status_buffer;
+    LBFileNode* status_buffer;
     size_t status_buffer_size;
-    LBFileNode *force_status_buffer;
+    LBFileNode* force_status_buffer;
     size_t force_status_buffer_size;
 };
 
@@ -18,19 +18,19 @@ struct LBInternBuffer
     uintptr_t rom_table_lo; // Start of file table
     u32 total_files_num;
     uintptr_t rom_table_hi; // End of file table
-    void *heap_start;
-    void *heap_ptr;
-    void *heap_end;
+    void* heap_start;
+    void* heap_ptr;
+    void* heap_end;
 
     // "status buffer"
     s32 status_buffer_num;
     s32 status_buffer_max;
-    LBFileNode *status_buffer;
+    LBFileNode* status_buffer;
 
     // "force status buffer"
     s32 force_status_buffer_num;
     s32 force_status_buffer_max;
-    LBFileNode *force_status_buffer;
+    LBFileNode* force_status_buffer;
 };
 
 struct LBTableEntry
@@ -46,15 +46,15 @@ struct LBTableEntry
 struct LBFileNode
 {
     u32 id;
-    void *addr;
+    void* addr;
 };
 
-typedef struct SYMallocRegion 
+typedef struct SYMallocRegion
 {
     u32 id;
-    void *start;
-    void *end;
-    void *ptr;
+    void* start;
+    void* end;
+    void* ptr;
 
 } SYMallocRegion;
 
@@ -70,32 +70,32 @@ struct FTData
     u32 file_special3_id;
     u32 file_special4_id;
     size_t file_main_size;
-    void **p_file_main; // Pointer to character's file?
-    void **p_file_mainmotion;
-    void **p_file_submotion;
-    void **p_file_model;
-    void **p_file_shieldpose;
-    void **p_file_special1;
-    void **p_file_special2;
-    void **p_file_special3;
-    void **p_file_special4;
-    s32 *p_particle;
+    void** p_file_main; // Pointer to character's file?
+    void** p_file_mainmotion;
+    void** p_file_submotion;
+    void** p_file_model;
+    void** p_file_shieldpose;
+    void** p_file_special1;
+    void** p_file_special2;
+    void** p_file_special3;
+    void** p_file_special4;
+    s32* p_particle;
     uintptr_t particles_script_lo;
     uintptr_t particles_script_hi;
     uintptr_t particles_texture_lo;
     uintptr_t particles_texture_hi;
     intptr_t o_attributes; // Offset to fighter's attributes
-    FTMotionDescArray *mainmotion;
-    FTMotionDescArray *submotion;
+    FTMotionDescArray* mainmotion;
+    FTMotionDescArray* submotion;
     s32 mainmotion_array_count;
-    s32 *submotion_array_count;
+    s32* submotion_array_count;
     size_t file_anim_size;
 };
 
 typedef struct SYHuffmanNode
 {
-    struct SYHuffmanNode *left;
-    struct SYHuffmanNode *right;
+    struct SYHuffmanNode* left;
+    struct SYHuffmanNode* right;
     s32 value;
 
 } SYHuffmanNode;
@@ -109,12 +109,12 @@ union LBRelocDesc
 
     } info;
 
-    void *p;
+    void* p;
 };
 
 struct GObjScript
 {
-    GObj *next_gobj;
+    GObj* next_gobj;
     s32 id;
 };
 
@@ -122,31 +122,31 @@ union GCUserData
 {
     s32 s;
     u32 u;
-    void *p;
+    void* p;
 };
 
 struct GObj
 {
     u32 id;
-    GObj *link_next;
-    GObj *link_prev;
+    GObj* link_next;
+    GObj* link_prev;
     u8 link_id;
     u8 dl_link_id;
     u8 frame_draw_last;                 // Last frame drawn?
     u8 obj_kind;                        // Determines kind of *obj: 0 = NULL, 1 = DObj, 2 = SObj, 3 = CObj
     u32 link_priority;
     void (*func_run)(GObj*);
-    GObjProcess *gobjproc_head;
+    GObjProcess* gobjproc_head;
 
     union
     {
         s32 unk_0x1C;
-        GObj *unk_gobj_0x1C;
-        GObjProcess *gobjproc_tail;
+        GObj* unk_gobj_0x1C;
+        GObjProcess* gobjproc_tail;
     };
-    
-    GObj *dl_link_next;
-    GObj *dl_link_prev;
+
+    GObj* dl_link_next;
+    GObj* dl_link_prev;
     u32 dl_link_priority;
     void (*proc_display)(GObj*);
     u64 camera_mask;
@@ -154,7 +154,7 @@ struct GObj
     u64 buffer_mask;
     GObjScript gobjscripts[5];
     s32 gobjscripts_num;                // Length/number of active members of gobjlinks
-    void *obj;                          // Can be: NULL, DObj, SObj or CObj
+    void* obj;                          // Can be: NULL, DObj, SObj or CObj
     f32 anim_frame;                     // Current frame of animation
     u32 flags;                          // GObj logic flags (e.g. 0x1 = skip rendering)
     void (*func_anim)(DObj*, s32, f32);
@@ -163,7 +163,7 @@ struct GObj
 
 struct GCTranslate
 {
-    XObj *xobj;
+    XObj* xobj;
 
     union
     {
@@ -175,7 +175,7 @@ struct GCTranslate
 
 struct GCRotate
 {
-    XObj *xobj;
+    XObj* xobj;
 
     f32 a;          // Rotation angle
 
@@ -188,8 +188,8 @@ struct GCRotate
 
 struct GCScale
 {
-    XObj *xobj;
-    
+    XObj* xobj;
+
     union
     {
         Vec3f f;
@@ -199,54 +199,54 @@ struct GCScale
 
 union AObjScript
 {
-    AObjEvent16 *event16;
-    AObjEvent32 *event32;
+    AObjEvent16* event16;
+    AObjEvent32* event32;
 };
 
 struct DObj                 // Draw Object
 {
-    DObj *alloc_free;       // Has to do with memory allocation
-    GObj *parent_gobj;      // GObj that this DObj belongs to
-    DObj *sib_next;         // Next sibling
-    DObj *sib_prev;         // Previous sibling
-    DObj *child;            // Child
-    DObj *parent;           // Parent
+    DObj* alloc_free;       // Has to do with memory allocation
+    GObj* parent_gobj;      // GObj that this DObj belongs to
+    DObj* sib_next;         // Next sibling
+    DObj* sib_prev;         // Previous sibling
+    DObj* child;            // Child
+    DObj* parent;           // Parent
 
     GCTranslate translate;  // Translation XObj and vector
     GCRotate rotate;        // Rotation XObj and vector
     GCScale scale;          // Scale XObj and vector
 
-    DObjVec *vec;
+    DObjVec* vec;
 
     union
     {
-        void *dv;           // Default void* display list variable
-        Gfx *dl;
-        Gfx **dls;
-        DObjMultiList *multi_list;
-        DObjDLLink *dl_link;
-        DObjDistDL *dist_dl;
-        DObjDistDLLink *dist_dl_link;
+        void* dv;           // Default void* display list variable
+        Gfx* dl;
+        Gfx** dls;
+        DObjMultiList* multi_list;
+        DObjDLLink* dl_link;
+        DObjDistDL* dist_dl;
+        DObjDistDLLink* dist_dl_link;
     };
 
     u8 flags;
-    
+
     ub8 is_anim_root;       // TRUE if this DObj's animation script is at the top of the hierarchy?
 
     u8 xobjs_num;
-    XObj *xobjs[5];
+    XObj* xobjs[5];
 
-    AObj *aobj;
+    AObj* aobj;
 
     AObjScript anim_joint;
-    
+
     f32 anim_wait;          // Multi-purpose? Usually frames remaining until next anim command, but used as rotation step in Crate/Barrel smash GFX?
     f32 anim_speed;         // Multi-purpose? Fighters use this as animation playback rate / interpolation, but it is used as rotation step in Crate/Barrel smash GFX?
     f32 anim_frame;         // Multi-purpose? Usually current animation frame, but used as rotation step in Crate/Barrel smash GFX?
 
-    MObj *mobj;
+    MObj* mobj;
 
-    /* 
+    /*
      * Can be:
      * Other DObj that this DObj is attached to
      * FTParts
@@ -258,10 +258,10 @@ struct DObj                 // Draw Object
 
 struct MPObjectColl
 {
-	f32 top;						// Diamond collision top
-	f32 center;						// Diamond collision center
-	f32 bottom;						// Diamond collision bottom
-	f32 width;						// Diamond collision width
+    f32 top;						// Diamond collision top
+    f32 center;						// Diamond collision center
+    f32 bottom;						// Diamond collision bottom
+    f32 width;						// Diamond collision width
 };
 
 struct FTItemPickup
@@ -335,39 +335,39 @@ struct FTAttributes
     f32 halo_size;                                  // Respawn platform size?
     SYColorRGBA shade_color[3];
     SYColorRGBA fog_color;
-    ub32 is_have_attack11    : 1;
-    ub32 is_have_attack12    : 1;
-    ub32 is_have_attackdash  : 1;
-    ub32 is_have_attacks3    : 1;
-    ub32 is_have_attackhi3   : 1;
-    ub32 is_have_attacklw3   : 1;
-    ub32 is_have_attacks4    : 1;
-    ub32 is_have_attackhi4   : 1;
-    ub32 is_have_attacklw4   : 1;
-    ub32 is_have_attackairn  : 1;
-    ub32 is_have_attackairf  : 1;
-    ub32 is_have_attackairb  : 1;
+    ub32 is_have_attack11 : 1;
+    ub32 is_have_attack12 : 1;
+    ub32 is_have_attackdash : 1;
+    ub32 is_have_attacks3 : 1;
+    ub32 is_have_attackhi3 : 1;
+    ub32 is_have_attacklw3 : 1;
+    ub32 is_have_attacks4 : 1;
+    ub32 is_have_attackhi4 : 1;
+    ub32 is_have_attacklw4 : 1;
+    ub32 is_have_attackairn : 1;
+    ub32 is_have_attackairf : 1;
+    ub32 is_have_attackairb : 1;
     ub32 is_have_attackairhi : 1;
     ub32 is_have_attackairlw : 1;
-    ub32 is_have_specialn    : 1;
+    ub32 is_have_specialn : 1;
     ub32 is_have_specialairn : 1;
-    ub32 is_have_specialhi   : 1;
-    ub32 is_have_specialairhi: 1;
-    ub32 is_have_speciallw   : 1;
-    ub32 is_have_specialairlw: 1;                   
-    ub32 is_have_catch       : 1;                   // Whether fighter has a grab
-    ub32 is_have_voice       : 1;                   // Whether fighter can play FGMs marked "voice"
+    ub32 is_have_specialhi : 1;
+    ub32 is_have_specialairhi : 1;
+    ub32 is_have_speciallw : 1;
+    ub32 is_have_specialairlw : 1;
+    ub32 is_have_catch : 1;                   // Whether fighter has a grab
+    ub32 is_have_voice : 1;                   // Whether fighter can play FGMs marked "voice"
     FTDamageCollDesc damage_coll_descs[11];         // Hurtbox array setup
     Vec3f hit_detect_range;                         // This is a radius around the fighter within which hitbox detection can occur
-    u32 *setup_parts;                               // Pointer to two sets of flags marking joints that should be initialized on fighter creation
-    u32 *animlock;                                  // Pointer to two sets of flags marking joints that should not be animated; ignores joints 0 through 3
+    u32* setup_parts;                               // Pointer to two sets of flags marking joints that should be initialized on fighter creation
+    u32* animlock;                                  // Pointer to two sets of flags marking joints that should not be animated; ignores joints 0 through 3
     s32 effect_joint_ids[5];                        // The game will cycle through these joints when applying certain particles such as electricity and flames
     sb32 cliff_status_ga[5];                        // Bool for whether fighter is grounded or airborne during each cliff state
     s32 unused_0x2CC;                               // ???
-    FTHiddenPart *hiddenparts;                      // Hidden fighter body parts?
-    FTCommonPartContainer *commonparts_container;   // Base fighter body parts
-    DObjDesc *dobj_lookup;                          // I don't actually know how this works at the moment
-    AObjEvent32 **shield_anim_joints[8];            // One for each ordinal direction
+    FTHiddenPart* hiddenparts;                      // Hidden fighter body parts?
+    FTCommonPartContainer* commonparts_container;   // Base fighter body parts
+    DObjDesc* dobj_lookup;                          // I don't actually know how this works at the moment
+    AObjEvent32** shield_anim_joints[8];            // One for each ordinal direction
     s32 joint_rfoot_id;                             // Right foot joint
     f32 joint_rfoot_rotate;                         // Amount of bend applied to right foot on slope contour?
     s32 joint_lfoot_id;                             // Left foot joint
@@ -375,21 +375,46 @@ struct FTAttributes
     u8 filler_0x30C[0x31C - 0x30C];
     f32 unk_0x31C;
     f32 unk_0x320;
-    Vec3f *translate_scales;                        // A set of scaling vectors to modify the translation vector of a given joint?
-    FTModelPartContainer *modelparts_container;     // Passive model parts controlled via motion events or code
-    FTAccessPart *accesspart;                       // Headgear accessory (Pikachu wizard hat or Jigglypuff bow)
-    FTTexturePartContainer *textureparts_container; // These are generally facial expressions, controlled via motion events
+    Vec3f* translate_scales;                        // A set of scaling vectors to modify the translation vector of a given joint?
+    FTModelPartContainer* modelparts_container;     // Passive model parts controlled via motion events or code
+    FTAccessPart* accesspart;                       // Headgear accessory (Pikachu wizard hat or Jigglypuff bow)
+    FTTexturePartContainer* textureparts_container; // These are generally facial expressions, controlled via motion events
     s32 joint_itemheavy_id;                         // Joint for holding heavy items
-    FTThrownStatusArray *thrown_status;             // Array of thrown status IDs (forward- and back throw) to use for thrown fighters
+    FTThrownStatusArray* thrown_status;             // Array of thrown status IDs (forward- and back throw) to use for thrown fighters
     s32 joint_itemlight_id;                         // Joint for holding light items
-    FTSprites *sprites;                             // Stock sprites, stock palettes and emblem sprites
-    FTSkeleton **skeleton;                          // Electric damage skeleton model data
+    FTSprites* sprites;                             // Stock sprites, stock palettes and emblem sprites
+    FTSkeleton** skeleton;                          // Electric damage skeleton model data
+};
+
+typedef struct SYController
+{
+    u16 button_hold; // button
+    u16 button_tap; // new button presses?
+    u16 button_update; // buttons to handle?
+    u16 button_release; // released buttons?
+    Vec2b stick_range;
+
+} SYController; // size = 0x0A
+
+struct FTPlayerInput
+{
+    u16 button_hold;        // Held buttons
+    u16 button_tap;         // Newly pressed buttons
+    u16 button_release;     // Newly released buttons
+    Vec2b stick_range;      // Current stick range
+    Vec2b stick_prev;       // Previous stick range
+};
+
+struct FTComputerInput
+{
+    u16 button_inputs;      // All buttons
+    Vec2b stick_range;      // Computer player stick range
 };
 
 struct FTStruct
 {
-    FTStruct *next;                     // Next free FTStruct
-    GObj *fighter_gobj;                 // Fighter's GObj
+    FTStruct* next;                     // Next free FTStruct
+    GObj* fighter_gobj;                 // Fighter's GObj
     s32 fkind;                          // Fighter ID
     u8 team;                            // Fighter's team
     u8 player;                          // Controller port assigned to this fighter
@@ -528,17 +553,17 @@ struct FTStruct
 
     Vec2f magnify_pos;                  // Fighter's magnifying glass position
 
-    // struct FTInputStruct
-    // {
-    //     SYController *controller;       // Controller inputs
-    //     u16 button_mask_a;              // Button mapped to N64 A-Button
-    //     u16 button_mask_b;              // Button mapped to N64 B-Button
-    //     u16 button_mask_z;              // Button mapped to N64 Z-Trigger
-    //     u16 button_mask_l;              // Button mapped to N64 L-Trigger
-    //     FTPlayerInput pl;               // Human player inputs
-    //     FTComputerInput cp;             // Computer player inputs
+    struct FTInputStruct
+    {
+        SYController* controller;       // Controller inputs
+        u16 button_mask_a;              // Button mapped to N64 A-Button
+        u16 button_mask_b;              // Button mapped to N64 B-Button
+        u16 button_mask_z;              // Button mapped to N64 Z-Trigger
+        u16 button_mask_l;              // Button mapped to N64 L-Trigger
+        FTPlayerInput pl;               // Human player inputs
+        FTComputerInput cp;             // Computer player inputs
 
-    // } input;
+    } input;
 
     // FTComputer computer;                // Computer player struct
 
@@ -558,7 +583,7 @@ struct FTStruct
     ub8 is_shuffle_electric;            // Fighter vibrates horizontally rather than vertically if hit by an electric attack
     u16 shuffle_tics;                   // Model shift timer
 
-    GObj *throw_gobj;                   // GObj of opponent that threw this fighter
+    GObj* throw_gobj;                   // GObj of opponent that threw this fighter
     s32 throw_fkind;                    // Kind of opponent that threw this fighter
     u8 throw_team;                      // Team of opponent that threw this fighter
     u8 throw_player;                    // Port of opponent that threw this fighter
@@ -620,18 +645,18 @@ struct FTStruct
 
     f32 public_knockback;               // Knockback value used for crowd reactions
 
-    GObj *search_gobj;                  // GObj this fighter found when searching for grabbable fighters
+    GObj* search_gobj;                  // GObj this fighter found when searching for grabbable fighters
     f32 search_gobj_dist;               // Distance to found fighter GObj
     void (*proc_catch)(GObj*);          // Run this callback on grabbing attacker
     void (*proc_capture)(GObj*, GObj*); // Run this callback on grabbed victim
-    GObj *catch_gobj;                   // GObj this fighter has caught
-    GObj *capture_gobj;                 // GObj this fighter is captured by
+    GObj* catch_gobj;                   // GObj this fighter has caught
+    GObj* capture_gobj;                 // GObj this fighter is captured by
 
-    FTThrowHitDesc *throw_desc;         // Pointer to throw description
+    FTThrowHitDesc* throw_desc;         // Pointer to throw description
 
-    GObj *item_gobj;                    // Item GObj this fighter is holding
+    GObj* item_gobj;                    // Item GObj this fighter is holding
 
-    FTSpecialColl *special_coll;        // Fighter's special collision (This is a sphere! Not a box!)
+    FTSpecialColl* special_coll;        // Fighter's special collision (This is a sphere! Not a box!)
 
     Vec3f entry_pos;                    // Fighter's initial spawn position
 
@@ -640,18 +665,18 @@ struct FTStruct
 
     // FTMotionScript motion_scripts[2][2];// Fighter's move scripts; [i][0] is played before, then [i][1] once all 'proc_whatevers' have been executed 
 
-    DObj *joints[FTPARTS_JOINT_NUM_MAX];// Fighter's joints (DObjs)
+    DObj* joints[FTPARTS_JOINT_NUM_MAX];// Fighter's joints (DObjs)
 
     // -1 = hidden, 0 and up = draw model part ID
     // FTModelPartStatus modelpart_status[FTPARTS_JOINT_NUM_MAX - nFTPartsJointCommonStart];
 
     // FTTexturePartStatus texturepart_status[2];
 
-    FTData *data;                   // Fighter's file data setup
-    FTAttributes *attr;             // Fighter's unique attributes
+    FTData* data;                   // Fighter's file data setup
+    FTAttributes* attr;             // Fighter's unique attributes
 
-    void **figatree;                // Main animation
-    void **figatree_heap;           // Extern heap to load animations into
+    void** figatree;                // Main animation
+    void** figatree_heap;           // Extern heap to load animations into
 
     void (*proc_update)(GObj*);     // Update process
     void (*proc_accessory)(GObj*);  // Runs at the beginning of status change if events aren't queued and whenever fighter isn't in hitlag
@@ -733,9 +758,9 @@ struct FTStruct
 
 struct FTCommonPart
 {
-    DObjDesc *dobjdesc;
-    MObjSub ***p_mobjsubs;
-    AObjEvent32 ***p_costume_matanim_joints;
+    DObjDesc* dobjdesc;
+    MObjSub*** p_mobjsubs;
+    AObjEvent32*** p_costume_matanim_joints;
     u8 flags;
 };
 
@@ -747,7 +772,7 @@ struct FTCommonPartContainer
 struct DObjDesc
 {
     s32 id;
-    void *dl;
+    void* dl;
     Vec3f translate;
     Vec3f rotate;
     Vec3f scale;
@@ -758,7 +783,7 @@ struct MObjSub
     u16 pad00;
     u8 fmt;
     u8 siz;
-    void **sprites; // should this be a pointer to an array of images (sprite set)?
+    void** sprites; // should this be a pointer to an array of images (sprite set)?
     u16 unk08;
     u16 unk0A;
     u16 unk0C;
@@ -770,7 +795,7 @@ struct MObjSub
     f32 scav;       // V-Scale?
     f32 unk24;
     f32 unk28;
-    void **palettes;  // palette pointers?
+    void** palettes;  // palette pointers?
     u16 flags;      // command flags?
     u8 block_fmt;   // texture image format?
     u8 block_siz;
@@ -799,25 +824,25 @@ struct MObjSub
 
 struct MObj                         // Material Object
 {
-    MObj *next;
-    GObj *parent_gobj;              // Unconfirmed
+    MObj* next;
+    GObj* parent_gobj;              // Unconfirmed
     MObjSub sub;
     u16 texture_id_curr;
     u16 texture_id_next;
     f32 lfrac;
     f32 palette_id;
     s32 unk_mobj_0x8C;
-    AObj *aobj;
+    AObj* aobj;
     AObjScript matanim_joint;
     f32 anim_wait;                  // Animation frames remaining until next command(s) are parsed
     f32 anim_speed;                 // Animation playback rate / interpolation, multi-purpose?
     f32 anim_frame;                 // Current animation frame, multi-purpose?
-	GCUserData user_data;           // Actually just padding?
+    GCUserData user_data;           // Actually just padding?
 };
 
-struct XObj 
+struct XObj
 {
-    XObj *next;
+    XObj* next;
     u8 kind;
     u8 unk05;
     Mtx mtx;
@@ -863,7 +888,7 @@ struct FTMotionDescArray
 
 struct AObj
 {
-    AObj *next;
+    AObj* next;
     u8 track;
     u8 kind;
     f32 length_invert;
@@ -872,7 +897,7 @@ struct AObj
     f32 value_target;
     f32 rate_base;
     f32 rate_target;
-    void *interpolate;
+    void* interpolate;
 };
 
 union AObjEvent16
@@ -887,4 +912,79 @@ union AObjEvent16
         u16 toggle : 1;
 
     } command;
+};
+
+struct FTMotionFlags
+{
+    s16 motion_id : 10;
+    u16 attack_id : 6;
+};
+
+union GMStatFlags
+{
+    struct
+    {
+        u16 unused : 3;
+        ub16 is_smash_attack : 1;
+        ub16 ga : 1;
+        ub16 is_projectile : 1;
+        u16 attack_id : 10;
+    };
+    u16 halfword;
+};
+
+
+struct FTStatusDesc
+{
+    FTMotionFlags mflags;
+    GMStatFlags sflags;
+
+    void (*proc_update)(GObj*);
+    void (*proc_interrupt)(GObj*);
+    void (*proc_physics)(GObj*);
+    void (*proc_map)(GObj*);
+};
+
+void ftCommonWaitProcInterrupt(GObj* fighter_gobj);
+
+FTStatusDesc waitDesc =// Status 10 (0xA): Wait
+{
+    /////////////////////////// Motion Info ////////////////////////////////
+    nFTCommonMotionWait,					// Script ID
+    nFTMotionAttackIDNone,				    // Motion attack ID
+
+    /////////////////////////// Status Info ////////////////////////////////
+    0,										// Unused
+    FALSE,									// Is Smash attack?
+    nMPKineticsGround,						// Grounded or aerial attack?
+    FALSE,									// Is projectile?
+    nFTStatusAttackIDNone,				    // Status attack ID
+
+    //////////////////////// Process Callbacks /////////////////////////////
+    NULL,									// Proc Update
+    ftCommonWaitProcInterrupt,				// Proc Interrupt
+    NULL/*ftPhysicsApplyGroundVelFriction*/,		// Proc Physics
+    NULL/*mpCommonProcFighterOnCliffEdge*/			// Proc Map
+};
+
+void ftAnimEndSetWait(GObj *fighter_gobj);
+
+// Status 189 (0xBD): Appeal
+FTStatusDesc appealDesc = {
+    /////////////////////////// Motion Info ////////////////////////////////
+    nFTCommonMotionAppeal,					// Script ID
+    nFTMotionAttackIDNone,				    // Motion attack ID
+
+    /////////////////////////// Status Info ////////////////////////////////
+    0,										// Unused
+    FALSE,									// Is Smash attack?
+    nMPKineticsGround,						// Grounded or aerial attack?
+    FALSE,									// Is projectile?
+    nFTStatusAttackIDNone,				    // Status attack ID
+
+    //////////////////////// Process Callbacks /////////////////////////////
+    ftAnimEndSetWait,		            	// Proc Update
+    NULL/*ftCommonAppealProcInterrupt*/,			// Proc Interrupt
+    NULL/*ftPhysicsApplyGroundVelFriction*/,		// Proc Physics
+    NULL/*mpCommonProcFighterOnCliffEdge*/			// Proc Map
 };
