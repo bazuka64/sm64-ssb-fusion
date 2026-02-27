@@ -988,3 +988,11 @@ FTStatusDesc appealDesc = {
     NULL/*ftPhysicsApplyGroundVelFriction*/,		// Proc Physics
     NULL/*mpCommonProcFighterOnCliffEdge*/			// Proc Map
 };
+
+typedef union SYMatrixHub
+{
+    Mtx* gbi;
+    Mtx44f* f;
+    void** p;
+
+} SYMatrixHub;

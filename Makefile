@@ -559,8 +559,8 @@ ifneq (,$(call find-command,wslview))
     EMULATOR = "/mnt/c/Program Files (x86)/parallel-launcher/parallel-launcher.exe"
 else
 #     EMULATOR = parallel-launcher
-#     EMULATOR = "/mnt/c/Program Files/parallel-launcher/parallel-launcher.exe"
-    EMULATOR = "/mnt/c/Users/pentan/Downloads/Luna_Project64/Project64.exe"
+    EMULATOR = "/mnt/c/Program Files/parallel-launcher/parallel-launcher.exe" # retroarch.exe起動でもいい
+#     EMULATOR = "/mnt/c/Users/pentan/Downloads/Luna_Project64/Project64.exe"
 endif
 
 EMU_FLAGS =
@@ -617,8 +617,8 @@ distclean: clean
 	$(MAKE) -C $(TOOLS_DIR) clean
 
 test: $(ROM)
-# 	$(EMULATOR) $(EMU_FLAGS) $<
-	$(EMULATOR) $(EMU_FLAGS) $$(wslpath -w $<)
+	$(EMULATOR) $(EMU_FLAGS) $<
+# 	$(EMULATOR) $(EMU_FLAGS) $$(wslpath -w $<)
 
 test-pj64: $(ROM)
 	wine ~/Desktop/new64/Project64.exe $<

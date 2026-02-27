@@ -1,5 +1,3 @@
-void lbRelocLoadAndRelocFile(u32 file_id, void *ram_dst, u32 bytes_num, s32 loc);
-
 void lbRelocInitSetup(LBRelocSetup* setup)
 {
     sLBRelocInternBuffer.rom_table_lo = setup->table_addr;

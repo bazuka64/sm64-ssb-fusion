@@ -90,13 +90,6 @@ void lbCommonAddFighterPartsFigatree(DObj* root_dobj, void** figatree, f32 anim_
     }
 }
 
-#define ftGetStruct(fighter_gobj) 	((FTStruct*)(fighter_gobj)->user_data.p)
-#define AObjAnimAdvance(script) \
-((script)++)
-
-AObj *sGCAnimHead;
-u32 sGCAnimsActiveNum;
-
 AObj* gcGetAObjSetNextAlloc(void)
 {
 	AObj *aobj;
@@ -528,10 +521,6 @@ void ftAnimParseDObjFigatree(DObj *root_dobj)
         while (root_dobj->anim_wait <= 0.0F);
     }
 }
-
-#define GOBJ_FLAG_NOANIM            (1 << 1)            // Skip applying aninmation values?
-#define SQUARE(x) ((x) * (x))
-
 
 void gcPlayDObjAnimJoint(DObj *dobj)
 {
