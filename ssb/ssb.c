@@ -57,14 +57,19 @@ void ssb_init() {
     );
 
     fp->figatree_heap = ftManagerAllocFigatreeHeapKind(nFTKindNess);
-    lbRelocGetForceExternHeapFile(0x680/*wait animation id*/, (void*)fp->figatree_heap);
     fp->figatree = fp->figatree_heap;
+    
+    lbRelocGetForceExternHeapFile(&ll_1664_FileID/*wait animation id*/, (void*)fp->figatree_heap);
     lbCommonAddFighterPartsFigatree(fp->joints[nFTPartsJointTopN]->child, fp->figatree, 0);
+}
+
+void ftMainProcUpdateInterrupt(GObj* fighter_gobj) {
+    ftParamUpdateAnimKeys(&gobj);
 }
 
 void ssb_draw(Vec3fArray pos) {
 
-    ftParamUpdateAnimKeys(&gobj);
+    ftMainProcUpdateInterrupt(&gobj);
 
     syMallocReset(&gSYTaskmanGraphicsHeap);
 

@@ -559,7 +559,8 @@ ifneq (,$(call find-command,wslview))
     EMULATOR = "/mnt/c/Program Files (x86)/parallel-launcher/parallel-launcher.exe"
 else
 #     EMULATOR = parallel-launcher
-    EMULATOR = "/mnt/c/Program Files/parallel-launcher/parallel-launcher.exe"
+#     EMULATOR = "/mnt/c/Program Files/parallel-launcher/parallel-launcher.exe"
+    EMULATOR = "/mnt/c/Users/pentan/Downloads/Luna_Project64/Project64.exe"
 endif
 
 EMU_FLAGS =
@@ -616,7 +617,8 @@ distclean: clean
 	$(MAKE) -C $(TOOLS_DIR) clean
 
 test: $(ROM)
-	$(EMULATOR) $(EMU_FLAGS) $<
+# 	$(EMULATOR) $(EMU_FLAGS) $<
+	$(EMULATOR) $(EMU_FLAGS) $$(wslpath -w $<)
 
 test-pj64: $(ROM)
 	wine ~/Desktop/new64/Project64.exe $<
@@ -912,7 +914,7 @@ $(BUILD_DIR)/sm64_prelim.ld: sm64.ld $(O_FILES) $(YAY0_OBJ_FILES) $(SEG_FILES) $
 
 $(BUILD_DIR)/sm64_prelim.elf: $(BUILD_DIR)/sm64_prelim.ld
 	@$(PRINT) "$(GREEN)Linking Preliminary ELF file:  $(BLUE)$@ $(NO_COL)\n"
-	$(V)$(LD) --gc-sections -L $(BUILD_DIR) -T $< -Map $(BUILD_DIR)/sm64_prelim.map --no-check-sections $(addprefix -R ,$(SEG_FILES)) -o $@ $(O_FILES) -L$(LIBS_DIR) -l$(ULTRALIB) -Llib $(LINK_LIBRARIES) -u sprintf -u osMapTLB -Llib/gcclib/$(LIBGCCDIR) -lgcc
+	$(V)$(LD) --gc-sections -L $(BUILD_DIR) -T $< -Map $(BUILD_DIR)/sm64_prelim.map --no-check-sections $(addprefix -R ,$(SEG_FILES)) -o $@ $(O_FILES) -L$(LIBS_DIR) -l$(ULTRALIB) -Llib $(LINK_LIBRARIES) -u sprintf -u osMapTLB -Llib/gcclib/$(LIBGCCDIR) -lgcc -T ssb/reloc_data_symbols.us.txt
 
 $(BUILD_DIR)/goddard.txt: $(BUILD_DIR)/sm64_prelim.elf
 	$(call print,Getting Goddard size...)
@@ -926,7 +928,7 @@ $(BUILD_DIR)/asm/debug/map.o: asm/debug/map.s $(BUILD_DIR)/sm64_prelim.elf
 # Link SM64 ELF file
 $(ELF): $(BUILD_DIR)/sm64_prelim.elf $(BUILD_DIR)/asm/debug/map.o $(O_FILES) $(YAY0_OBJ_FILES) $(SEG_FILES) $(BUILD_DIR)/$(LD_SCRIPT) $(BUILD_DIR)/libz.a $(BUILD_DIR)/libgoddard.a
 	@$(PRINT) "$(GREEN)Linking ELF file:  $(BLUE)$@ $(NO_COL)\n"
-	$(V)$(LD) --gc-sections -L $(BUILD_DIR) -T $(BUILD_DIR)/$(LD_SCRIPT) -T goddard.txt -Map $(BUILD_DIR)/sm64.$(VERSION).map --no-check-sections $(addprefix -R ,$(SEG_FILES)) -o $@ $(O_FILES) -L$(LIBS_DIR) -l$(ULTRALIB) -Llib $(LINK_LIBRARIES) -u sprintf -u osMapTLB -Llib/gcclib/$(LIBGCCDIR) -lgcc
+	$(V)$(LD) --gc-sections -L $(BUILD_DIR) -T $(BUILD_DIR)/$(LD_SCRIPT) -T goddard.txt -Map $(BUILD_DIR)/sm64.$(VERSION).map --no-check-sections $(addprefix -R ,$(SEG_FILES)) -o $@ $(O_FILES) -L$(LIBS_DIR) -l$(ULTRALIB) -Llib $(LINK_LIBRARIES) -u sprintf -u osMapTLB -Llib/gcclib/$(LIBGCCDIR) -lgcc -T ssb/reloc_data_symbols.us.txt
 
 # Build ROM
 ifeq (n,$(findstring n,$(firstword -$(MAKEFLAGS))))
