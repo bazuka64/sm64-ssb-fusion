@@ -82,12 +82,10 @@ void ssb_draw(Vec3fArray pos, Vec3iArray rot) {
 
     for (size_t i = 0; i < 2; i++)
     {
-        /* code */
         ftMainProcUpdateInterrupt(&gobj);
         ftMainProcPhysicsMap(&gobj, pos);
     }
     
-
     syMallocReset(&gSYTaskmanGraphicsHeap);
 
     // テクスチャをつけるのに必要
@@ -98,7 +96,6 @@ void ssb_draw(Vec3fArray pos, Vec3iArray rot) {
 
     Mtx* mtx = alloc_display_list(sizeof(*mtx)); // s32
     Mat4 mat4; // f32
-    Mat4 mat4_2; // f32
     const Vec3fArray scale = { SCALE, SCALE, SCALE }; // f32
     mtxf_identity(mat4);
     s16 rot_y = rot[1];

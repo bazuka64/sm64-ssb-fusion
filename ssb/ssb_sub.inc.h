@@ -158,4 +158,12 @@ void ftMainProcPhysicsMap(GObj* fighter_gobj, Vec3fArray pos) {
     }
 
     pos[0] += fp->physics.vel_ground.x * fp->lr * SCALE;
+    pos[1] += fp->physics.vel_air.y * SCALE;
+
+    if (pos[1] < 260) {
+        pos[1] = 260;
+        fp->physics.vel_air.y = 0;
+        ftMainSetStatus(fighter_gobj, nFTCommonStatusWait, 0.0F, 1.0F, FTSTATUS_PRESERVE_NONE);
+    }
 }
+

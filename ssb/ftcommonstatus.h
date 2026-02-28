@@ -300,7 +300,7 @@ FTStatusDesc dFTCommonActionStatusDescs[/* */] =
 		nFTStatusAttackIDNone,				    // Status attack ID
 
 		//////////////////////// Process Callbacks /////////////////////////////
-		NULL, // 		ftCommonKneeBendProcUpdate,				// Proc Update
+		ftCommonKneeBendProcUpdate,				// Proc Update
 		NULL, // 		ftCommonKneeBendProcInterrupt,			// Proc Interrupt
 		NULL, // 		ftPhysicsApplyGroundVelFriction,		// Proc Physics
 		NULL, // 		mpCommonSetFighterFallOnGroundBreak		// Proc Map
@@ -340,9 +340,9 @@ FTStatusDesc dFTCommonActionStatusDescs[/* */] =
 		nFTStatusAttackIDNone,				    // Status attack ID
 
 		//////////////////////// Process Callbacks /////////////////////////////
-		NULL, // 		ftAnimEndSetFall,		            	// Proc Update
+		proc_update_1, // 		ftAnimEndSetFall,		            	// Proc Update
 		NULL, // 		ftCommonJumpProcInterrupt,				// Proc Interrupt
-		NULL, // 		ftPhysicsApplyAirVelDriftFastFall,		// Proc Physics
+		ftPhysicsApplyAirVelDriftFastFall,		// Proc Physics
 		NULL, // 		mpCommonProcFighterCliffFloorCeil		// Proc Map
 	},
 

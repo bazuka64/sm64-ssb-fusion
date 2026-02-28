@@ -15,8 +15,8 @@
 	*/(ftCommonAttack1CheckInterruptCommon(fighter_gobj) != FALSE) 	|| 	\
     /*(ftCommonGuardOnCheckInterruptCommon(fighter_gobj) != FALSE) 	|| 	\
     */(ftCommonAppealCheckInterruptCommon(fighter_gobj) != FALSE) 	 ||	\
-    /*(ftCommonKneeBendCheckInterruptCommon(fighter_gobj) != FALSE) 	|| 	\
-    */(ftCommonDashCheckInterruptCommon(fighter_gobj) != FALSE) 	|| \	
+    (ftCommonKneeBendCheckInterruptCommon(fighter_gobj) != FALSE) 	|| 	\
+    (ftCommonDashCheckInterruptCommon(fighter_gobj) != FALSE) 	|| \	
     /*(ftCommonPassCheckInterruptCommon(fighter_gobj) != FALSE) 		|| 	\
     (ftCommonDokanStartCheckInterruptCommon(fighter_gobj) != FALSE) || 	\
     (ftCommonSquatCheckInterruptCommon(fighter_gobj) != FALSE) 		|| 	\
@@ -248,4 +248,163 @@ void ftPhysicsApplyGroundVelFriction(GObj *fighter_gobj)
 
     ftPhysicsSetGroundVelFriction(fp, 4.0F * attr->traction);
     // ftPhysicsSetGroundVelTransferAir(fighter_gobj);
+}
+
+#define FTCOMMON_KNEEBEND_INPUT_TYPE_NONE 0
+#define FTCOMMON_KNEEBEND_INPUT_TYPE_STICK 1
+#define FTCOMMON_KNEEBEND_INPUT_TYPE_BUTTON 2
+#define FTCOMMON_KNEEBEND_STICK_RANGE_MIN 53		// Minimum stick Y range required for stick jump
+#define FTCOMMON_KNEEBEND_BUFFER_TICS_MAX 3
+sb32 ftCommonKneeBendCheckButtonTap(FTStruct *fp)
+{
+    if (fp->input.pl.button_tap & (R_CBUTTONS | L_CBUTTONS | D_CBUTTONS | U_CBUTTONS))
+    {
+        return TRUE;
+    }
+    else return FALSE;
+}
+s32 ftCommonKneeBendGetInputTypeCommon(FTStruct *fp)
+{
+    if ((fp->input.pl.stick_range.y >= FTCOMMON_KNEEBEND_STICK_RANGE_MIN) && (fp->tap_stick_y <= FTCOMMON_KNEEBEND_BUFFER_TICS_MAX))
+    {
+        return FTCOMMON_KNEEBEND_INPUT_TYPE_STICK;
+    }
+    else if (ftCommonKneeBendCheckButtonTap(fp) != FALSE)
+    {
+        return FTCOMMON_KNEEBEND_INPUT_TYPE_BUTTON;
+    }
+    else return FTCOMMON_KNEEBEND_INPUT_TYPE_NONE;
+}
+
+void ftCommonKneeBendSetStatusParam(GObj *fighter_gobj, s32 status_id, s32 input_source)
+{
+    FTStruct *fp = ftGetStruct(fighter_gobj);
+
+    ftMainSetStatus(fighter_gobj, status_id, 0.0F, 1.0F, FTSTATUS_PRESERVE_NONE);
+
+    // fp->status_vars.common.kneebend.jump_force = fp->input.pl.stick_range.y;
+    // fp->status_vars.common.kneebend.anim_frame = 0.0F;
+    // fp->status_vars.common.kneebend.input_source = input_source;
+    // fp->status_vars.common.kneebend.is_shorthop = FALSE;
+
+    fp->is_special_interrupt = TRUE;
+}
+
+void ftCommonKneeBendSetStatus(GObj *fighter_gobj, s32 input_source)
+{
+    ftCommonKneeBendSetStatusParam(fighter_gobj, nFTCommonStatusKneeBend, input_source);
+}
+
+sb32 ftCommonKneeBendCheckInterruptCommon(GObj *fighter_gobj)
+{
+    FTStruct *fp = ftGetStruct(fighter_gobj);
+    s32 input_source;
+
+    input_source = ftCommonKneeBendGetInputTypeCommon(fp);
+
+    if (input_source != FTCOMMON_KNEEBEND_INPUT_TYPE_NONE)
+    {
+        ftCommonKneeBendSetStatus(fighter_gobj, input_source);
+
+        return TRUE;
+    }
+    else return FALSE;
+}
+
+void ftCommonJumpSetStatus(GObj *fighter_gobj)
+{
+    FTStruct *fp = ftGetStruct(fighter_gobj);
+    FTAttributes *attr = fp->attr;
+    s32 status_id;
+    s32 vel_x, vel_y;
+
+    // mpCommonSetFighterAir(fp);
+
+    // status_id = ((fp->input.pl.stick_range.x * fp->lr) > FTCOMMON_KNEEBEND_JUMP_F_OR_B_RANGE) ? nFTCommonStatusJumpF : nFTCommonStatusJumpB;
+    status_id = nFTCommonStatusJumpF;
+
+    ftMainSetStatus(fighter_gobj, status_id, 0.0F, 1.0F, FTSTATUS_PRESERVE_NONE);
+
+    // switch (fp->status_vars.common.kneebend.input_source)
+    // {
+    // case FTCOMMON_KNEEBEND_INPUT_TYPE_BUTTON:
+    //     ftCommonJumpGetJumpForceButton(fp->input.pl.stick_range.x, &vel_x, &vel_y, fp->status_vars.common.kneebend.is_shorthop);
+    //     break;
+
+    // case FTCOMMON_KNEEBEND_INPUT_TYPE_STICK:
+    // default:
+    //     vel_x = fp->input.pl.stick_range.x;
+    //     vel_y = fp->status_vars.common.kneebend.jump_force;
+
+    //     if (vel_y < FTCOMMON_KNEEBEND_STICK_RANGE_MIN)
+    //     {
+    //         vel_y = FTCOMMON_KNEEBEND_STICK_RANGE_MIN;
+    //     }
+    //     break;
+    // }
+    vel_y = 1;
+    vel_x = 1;
+    fp->physics.vel_air.y = (vel_y * attr->jump_height_mul) + attr->jump_height_base;
+    fp->physics.vel_air.x = vel_x * attr->jump_vel_x;
+
+    // fp->tap_stick_y = FTINPUT_STICKBUFFER_TICS_MAX;
+
+    // fp->is_special_interrupt = TRUE;
+}
+
+void ftCommonKneeBendProcUpdate(GObj *fighter_gobj)
+{
+    FTStruct *fp = ftGetStruct(fighter_gobj);
+    FTAttributes *attr = fp->attr;
+
+    //fp->status_vars.common.kneebend.anim_frame += DObjGetStruct(fighter_gobj)->anim_speed;
+
+    // if 
+    // (
+    //     (fp->status_vars.common.kneebend.input_source == FTCOMMON_KNEEBEND_INPUT_TYPE_BUTTON)&&
+    //     (fp->status_vars.common.kneebend.anim_frame <= FTCOMMON_KNEEBEND_SHORTHOP_FRAMES)    &&
+    //     (fp->input.pl.button_release & (R_CBUTTONS | L_CBUTTONS | D_CBUTTONS | U_CBUTTONS))
+    // )
+    // {
+    //     fp->status_vars.common.kneebend.is_shorthop = TRUE;
+    // }
+    // if (attr->kneebend_anim_length <= fp->status_vars.common.kneebend.anim_frame) 
+    {
+        ftCommonJumpSetStatus(fighter_gobj);
+    }
+}
+
+void ftPhysicsApplyGravityClampTVel(FTStruct *fp, f32 gravity, f32 tvel)
+{
+    fp->physics.vel_air.y -= gravity;
+
+    if (fp->physics.vel_air.y < -tvel)
+    {
+        fp->physics.vel_air.y = -tvel;
+    }
+}
+void ftPhysicsApplyGravityDefault(FTStruct *fp, FTAttributes *attr)
+{
+    ftPhysicsApplyGravityClampTVel(fp, attr->gravity, attr->tvel_base);
+}
+void ftPhysicsApplyAirVelDriftFastFall(GObj *fighter_gobj)
+{
+    FTStruct *fp = ftGetStruct(fighter_gobj);
+    FTAttributes *attr = fp->attr;
+    
+    // ftPhysicsCheckSetFastFall(fp);
+    
+    //(fp->is_fastfall) ? ftPhysicsApplyFastFall(fp, attr) : ftPhysicsApplyGravityDefault(fp, attr);
+    ftPhysicsApplyGravityDefault(fp, attr);
+    
+    // if (ftPhysicsCheckClampAirVelXDecMax(fp, attr) == FALSE)
+    // {
+    //     ftPhysicsClampAirVelXStickDefault(fp, attr);
+    //     ftPhysicsApplyAirVelXFriction(fp, attr);
+    // }
+}
+
+void proc_update_1(GObj *fighter_gobj)
+{
+    FTStruct *fp = ftGetStruct(fighter_gobj);
 }
